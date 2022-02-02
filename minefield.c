@@ -14,6 +14,24 @@ struct Spot
     int selected; // if spot has been selected
 };
 
+// allocates memory for each value and bomb counting array (+1 size for each level)
+void countArrayInit(int **rowBomb, int **rowVal, int **colBomb, int **colVal, int level)
+{
+    *rowBomb = (int*)calloc(sqrt(SIZE)+level,sizeof(int));
+    *rowVal = (int*)calloc(sqrt(SIZE)+level,sizeof(int));
+    *colBomb = (int*)calloc(sqrt(SIZE)+level,sizeof(int));
+    *colVal = (int*)calloc(sqrt(SIZE)+level,sizeof(int));
+}
+
+// frees memory allocated for each value and bomb counting array
+void countArrayFree(int *rowBomb, int *rowVal, int *colBomb, int *colVal)
+{
+    free(rowBomb);
+    free(rowVal);
+    free(colBomb);
+    free(colVal);
+}
+
 // checks for bomb in board spot
 int ifBomb(struct Spot A[], int b)
 {
@@ -49,6 +67,7 @@ void countPoints(struct Spot A[], int b[], int c[])
 // prints 2d game board
 void printBoard(struct Spot A[], int b[],int c[], int d[], int e[])
 {
+    system("cls");
     for (int i=0;i<SIZE;i++)
     {
         // prints x if spot hasn't been selected
@@ -79,13 +98,13 @@ int checkLoss(struct Spot A[], int b)
 }
 
 // initializes game board
-void matrixInit(struct Spot A[])
+void matrixInit(struct Spot A[],int b)
 {
     for (int i=0;i<SIZE;i++)
     {
         A[i].value = 1;
     }
-    int bombs = 6; // # of total bombs
+    int bombs = 6+b; // # of total bombs
     int points = 5; // # of extra points to be allocated
     int temp = 0;
     srand(time(NULL)); // seeds random
@@ -121,13 +140,15 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }*/
     struct Spot board[SIZE] = {};
-    int rowBombArr[5] = {};
-    int rowValArr[5] = {};
-    int colBombArr[5] = {};
-    int colValArr[5] = {};
+    int *rowBombArr;
+    int *rowValArr;
+    int *colBombArr;
+    int *colValArr;
     int loss = 0;
+    int level = 0;
     int loc;
-    matrixInit(board);
+    countArrayInit(&rowBombArr,&rowValArr,&colBombArr,&colValArr,level);
+    matrixInit(board,level);
     countBomb(board,rowBombArr,colBombArr);
     countPoints(board,rowValArr,colValArr);
     printBoard(board,rowBombArr,colBombArr,rowValArr,colValArr);
@@ -140,5 +161,6 @@ int main(int argc, char *argv[])
         printBoard(board,rowBombArr,colBombArr,rowValArr,colValArr);
         loss = checkLoss(board,loc);
     }
+    countArrayFree(rowBombArr,rowValArr,colBombArr,colValArr);
     return EXIT_SUCCESS;
 }

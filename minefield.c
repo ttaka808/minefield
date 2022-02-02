@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <string.h>
 
 #define SIZE 25 // size of board
 
@@ -69,9 +70,14 @@ void printBoard(struct Spot A[], int b[],int c[], int d[], int e[], int level)
 {
     system("cls"); // clear terminal screen
     printf("Level: %d\n",level+1);
+    printf("   A   B   C   D   E\n");
     for (int i=0;i<SIZE;i++)
     {
         // prints x if spot hasn't been selected
+        if (i % 5 == 0)
+        {
+            printf("%d  ",i/5); // prints row stats
+        }
         if (!A[i].selected)
             printf("%c   ",'x');
         // prints value after being selected
@@ -82,7 +88,7 @@ void printBoard(struct Spot A[], int b[],int c[], int d[], int e[], int level)
             printf(" %d/%d\n",d[i/5],b[i/5]); // prints row stats
         }
     }
-    printf("\n");
+    printf("  ");
     for (int j=0;j<5;j++)
     {
         printf("%d/%d ",e[j],c[j]); // prints col stats
@@ -160,6 +166,7 @@ int main(int argc, char *argv[])
     int loss = 0; // boolean loss
     int win; // boolean win
     int level = 0; // level - 1
+    char coord[3];
     int loc;
     while (level <= 2 && !loss)
     {
@@ -173,12 +180,18 @@ int main(int argc, char *argv[])
         {
             // receives user input for spot selection
             printf("Enter spot: ");
-            scanf("%d",&loc);
-            board[loc].selected = 1;
-            printBoard(board,rowBombArr,colBombArr,rowValArr,colValArr,level); // updates board
-            // checks for loss and win
-            loss = checkLoss(board,loc);
-            win = checkWin(board);
+            scanf("%s",&coord);
+            loc = (coord[1] - '0') * 5 + (int)coord[0] - 64;
+            if (loc >= 1 && loc <= 25)
+            {
+                board[loc-1].selected = 1;
+                printBoard(board,rowBombArr,colBombArr,rowValArr,colValArr,level); // updates board
+                // checks for loss and win
+                loss = checkLoss(board,loc-1);
+                win = checkWin(board);
+            }
+            else
+                printf("Enter valid coordinate on board\n");
         }
         if (win)
         {
@@ -187,6 +200,8 @@ int main(int argc, char *argv[])
             if (level == 3)
                 printf("You win!\n");
         }
+        if (loss)
+            printf("You lose!\n");
         countArrayFree(rowBombArr,rowValArr,colBombArr,colValArr);
     }
     return EXIT_SUCCESS;

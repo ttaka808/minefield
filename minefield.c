@@ -65,9 +65,10 @@ void countPoints(struct Spot A[], int b[], int c[])
 }
 
 // prints 2d game board
-void printBoard(struct Spot A[], int b[],int c[], int d[], int e[])
+void printBoard(struct Spot A[], int b[],int c[], int d[], int e[], int level)
 {
-    system("cls");
+    system("cls"); // clear terminal screen
+    printf("Level: %d\n",level+1);
     for (int i=0;i<SIZE;i++)
     {
         // prints x if spot hasn't been selected
@@ -95,6 +96,16 @@ int checkLoss(struct Spot A[], int b)
     if (A[b].bomb == 1 && A[b].selected == 1)
         return 1;
     return 0;
+}
+
+int checkWin(struct Spot A[])
+{
+    for (int i=0;i<SIZE;i++)
+    {
+        if (A[i].value > 1 && A[i].selected == 0) 
+            return 0;
+    }
+    return 1; 
 }
 
 // initializes game board
@@ -145,22 +156,34 @@ int main(int argc, char *argv[])
     int *colBombArr;
     int *colValArr;
     int loss = 0;
+    int win;
     int level = 0;
     int loc;
-    countArrayInit(&rowBombArr,&rowValArr,&colBombArr,&colValArr,level);
-    matrixInit(board,level);
-    countBomb(board,rowBombArr,colBombArr);
-    countPoints(board,rowValArr,colValArr);
-    printBoard(board,rowBombArr,colBombArr,rowValArr,colValArr);
-    while (!loss)
+    while (level <= 2 && !loss)
     {
-        int loc;
-        printf("Enter spot: ");
-        scanf("%d",&loc);
-        board[loc].selected = 1;
-        printBoard(board,rowBombArr,colBombArr,rowValArr,colValArr);
-        loss = checkLoss(board,loc);
+        win = 0;
+        countArrayInit(&rowBombArr,&rowValArr,&colBombArr,&colValArr,level);
+        matrixInit(board,level);
+        countBomb(board,rowBombArr,colBombArr);
+        countPoints(board,rowValArr,colValArr);
+        printBoard(board,rowBombArr,colBombArr,rowValArr,colValArr,level);
+        while (!loss && !win)
+        {
+            printf("Enter spot: ");
+            scanf("%d",&loc);
+            board[loc].selected = 1;
+            printBoard(board,rowBombArr,colBombArr,rowValArr,colValArr,level);
+            loss = checkLoss(board,loc);
+            win = checkWin(board);
+        }
+        if (win)
+        {
+            level++; // increment the level
+            memset(board,0,SIZE*sizeof(struct Spot)); // clear the board
+            if (level == 3)
+                printf("You win!\n");
+        }
+        countArrayFree(rowBombArr,rowValArr,colBombArr,colValArr);
     }
-    countArrayFree(rowBombArr,rowValArr,colBombArr,colValArr);
     return EXIT_SUCCESS;
 }

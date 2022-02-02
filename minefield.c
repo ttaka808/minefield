@@ -98,11 +98,12 @@ int checkLoss(struct Spot A[], int b)
     return 0;
 }
 
+// checks if current game board has been won
 int checkWin(struct Spot A[])
 {
     for (int i=0;i<SIZE;i++)
     {
-        if (A[i].value > 1 && A[i].selected == 0) 
+        if (A[i].value > 1 && A[i].selected == 0)  // won if all 2+ value spots are selected
             return 0;
     }
     return 1; 
@@ -111,6 +112,7 @@ int checkWin(struct Spot A[])
 // initializes game board
 void matrixInit(struct Spot A[],int b)
 {
+    // initializes every spot to a value of 1
     for (int i=0;i<SIZE;i++)
     {
         A[i].value = 1;
@@ -130,7 +132,7 @@ void matrixInit(struct Spot A[],int b)
             bombs--;
         }
     }
-    // allocates extra points to board
+    // allocates extra points to board randomly (seeded with time)
     while (points > 0)
     {
         temp = rand() % SIZE;
@@ -150,14 +152,14 @@ int main(int argc, char *argv[])
         printf("./minefield (level)");
         return EXIT_FAILURE;
     }*/
-    struct Spot board[SIZE] = {};
-    int *rowBombArr;
-    int *rowValArr;
-    int *colBombArr;
-    int *colValArr;
-    int loss = 0;
-    int win;
-    int level = 0;
+    struct Spot board[SIZE] = {}; // board - array of structs Spot
+    int *rowBombArr; // array of # of bombs in each row
+    int *rowValArr; // array of # of points in each row
+    int *colBombArr; // array of # of bombs in each column
+    int *colValArr; // array of # of points in each column
+    int loss = 0; // boolean loss
+    int win; // boolean win
+    int level = 0; // level - 1
     int loc;
     while (level <= 2 && !loss)
     {
@@ -169,10 +171,12 @@ int main(int argc, char *argv[])
         printBoard(board,rowBombArr,colBombArr,rowValArr,colValArr,level);
         while (!loss && !win)
         {
+            // receives user input for spot selection
             printf("Enter spot: ");
             scanf("%d",&loc);
             board[loc].selected = 1;
-            printBoard(board,rowBombArr,colBombArr,rowValArr,colValArr,level);
+            printBoard(board,rowBombArr,colBombArr,rowValArr,colValArr,level); // updates board
+            // checks for loss and win
             loss = checkLoss(board,loc);
             win = checkWin(board);
         }

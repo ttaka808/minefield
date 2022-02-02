@@ -114,7 +114,7 @@ void countPoints(struct Spot grid[], int row[], int col[])
 // prints 2d game board
 void printBoard(struct Spot grid[], int rowBomb[], int colBomb[], int rowVal[], int colVal[], int level)
 {
-    system("cls"); // clear terminal screen
+    system("clear"); // clear terminal screen
     printf("Level: %d\nTip: Points/Bombs\n",level+1);
     printf("    A   B   C   D   E\n"); // prints columns
     for (int i=0;i<SIZE;i++)

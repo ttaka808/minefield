@@ -69,14 +69,14 @@ void countPoints(struct Spot A[], int b[], int c[])
 void printBoard(struct Spot A[], int b[],int c[], int d[], int e[], int level)
 {
     system("cls"); // clear terminal screen
-    printf("Level: %d\n",level+1);
-    printf("   A   B   C   D   E\n");
+    printf("Level: %d\nTip: Points/Bombs\n",level+1);
+    printf("    A   B   C   D   E\n"); // prints columns
     for (int i=0;i<SIZE;i++)
     {
         // prints x if spot hasn't been selected
         if (i % 5 == 0)
         {
-            printf("%d  ",i/5); // prints row stats
+            printf("%d   ",i/5); // prints row
         }
         if (!A[i].selected)
             printf("%c   ",'x');
@@ -85,10 +85,10 @@ void printBoard(struct Spot A[], int b[],int c[], int d[], int e[], int level)
             printf("%d   ",A[i].value);
         if (i % 5 == 4)
         {
-            printf(" %d/%d\n",d[i/5],b[i/5]); // prints row stats
+            printf("%d/%d\n",d[i/5],b[i/5]); // prints row stats
         }
     }
-    printf("  ");
+    printf("   ");
     for (int j=0;j<5;j++)
     {
         printf("%d/%d ",e[j],c[j]); // prints col stats
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
         while (!loss && !win)
         {
             // receives user input for spot selection
-            printf("Enter spot: ");
+            printf("Enter coordinate (xy): ");
             scanf("%s",&coord);
             loc = (coord[1] - '0') * 5 + (int)coord[0] - 64;
             if (loc >= 1 && loc <= 25)

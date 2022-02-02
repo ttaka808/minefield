@@ -15,6 +15,17 @@ struct Spot
     int selected; // if spot has been selected
 };
 
+// Function declarations
+void countArrayInit(int **rowBomb, int **rowVal, int **colBomb, int **colVal, int level);
+void countArrayFree(int *rowBomb, int *rowVal, int *colBomb, int *colVal);
+int ifBomb(struct Spot grid[], int location);
+void matrixInit(struct Spot grid[], int level);
+void countBomb(struct Spot grid[], int row[], int col[]);
+void countPoints(struct Spot grid[], int row[], int col[]);
+void printBoard(struct Spot grid[], int rowBomb[], int colBomb[], int rowVal[], int colVal[], int level);
+int checkLoss(struct Spot grid[], int location);
+int checkWin(struct Spot grid[]);
+
 // allocates memory for each value and bomb counting array (+1 size for each level)
 void countArrayInit(int **rowBomb, int **rowVal, int **colBomb, int **colVal, int level)
 {
@@ -34,39 +45,74 @@ void countArrayFree(int *rowBomb, int *rowVal, int *colBomb, int *colVal)
 }
 
 // checks for bomb in board spot
-int ifBomb(struct Spot A[], int b)
+int ifBomb(struct Spot grid[], int location)
 {
     // return 1 if spot is bomb, 0 if not
-    if (A[b].bomb)
+    if (grid[location].bomb)
         return 1;
     return 0;
 }
 
+// initializes game board
+void matrixInit(struct Spot grid[], int level)
+{
+    // initializes every spot to a value of 1
+    for (int i=0;i<SIZE;i++)
+    {
+        grid[i].value = 1;
+    }
+    int bombs = 6+level; // # of total bombs
+    int points = 5; // # of extra points to be allocated
+    int location = 0; // spot on board
+    srand(time(NULL)); // seeds random
+    // initializes bomb locations
+    while (bombs > 0)
+    {
+        location = rand() % SIZE; // random number between 0 and 24
+        if (!ifBomb(grid, location)) // if location isn't already bomb
+        {
+            grid[location].bomb = 1; // sets if bomb to 1
+            grid[location].value = 0; // sets point value to 0
+            bombs--;
+        }
+    }
+    // allocates extra points to board randomly (seeded with time)
+    while (points > 0)
+    {
+        location = rand() % SIZE;
+        if (!ifBomb(grid, location))
+        {
+            grid[location].value++;
+            points--;
+        }
+    }
+}
+
 // counts how many bombs are in each row and col
-void countBomb(struct Spot A[], int b[], int c[])
+void countBomb(struct Spot grid[], int row[], int col[])
 {
     for (int i=0;i<SIZE;i++)
     {
-        if (ifBomb(A,i))
+        if (ifBomb(grid, i))
         {
-            b[i/5]++; // counts bombs in row
-            c[i%5]++; // counts bombs in col
+            row[i/5]++; // counts bombs in row
+            col[i%5]++; // counts bombs in col
         }
     }
 }
 
 // counts how many points are in each row and col
-void countPoints(struct Spot A[], int b[], int c[])
+void countPoints(struct Spot grid[], int row[], int col[])
 {
     for (int i=0;i<SIZE;i++)
     {
-        b[i/5] += A[i].value; // counts points in row
-        c[i%5] += A[i].value; // counts points in col
+        row[i/5] += grid[i].value; // counts points in row
+        col[i%5] += grid[i].value; // counts points in col
     }
 }
 
 // prints 2d game board
-void printBoard(struct Spot A[], int b[],int c[], int d[], int e[], int level)
+void printBoard(struct Spot grid[], int rowBomb[], int colBomb[], int rowVal[], int colVal[], int level)
 {
     system("cls"); // clear terminal screen
     printf("Level: %d\nTip: Points/Bombs\n",level+1);
@@ -76,78 +122,43 @@ void printBoard(struct Spot A[], int b[],int c[], int d[], int e[], int level)
         // prints x if spot hasn't been selected
         if (i % 5 == 0)
         {
-            printf("%d   ",i/5); // prints row
+            printf("%d   ",i / 5); // prints row
         }
-        if (!A[i].selected)
+        if (!grid[i].selected)
             printf("%c   ",'x');
         // prints value after being selected
         else
-            printf("%d   ",A[i].value);
+            printf("%d   ",grid[i].value);
         if (i % 5 == 4)
         {
-            printf("%d/%d\n",d[i/5],b[i/5]); // prints row stats
+            printf("%d/%d\n",rowVal[i/5],rowBomb[i/5]); // prints row stats
         }
     }
     printf("   ");
     for (int j=0;j<5;j++)
     {
-        printf("%d/%d ",e[j],c[j]); // prints col stats
+        printf("%d/%d ",colVal[j],colBomb[j]); // prints col stats
     }
     printf("\n");
 }
 
 // checks if spot with bomb has been selected
-int checkLoss(struct Spot A[], int b)
+int checkLoss(struct Spot grid[], int location)
 {
-    if (A[b].bomb == 1 && A[b].selected == 1)
+    if (grid[location].bomb == 1 && grid[location].selected == 1)
         return 1;
     return 0;
 }
 
 // checks if current game board has been won
-int checkWin(struct Spot A[])
+int checkWin(struct Spot grid[])
 {
     for (int i=0;i<SIZE;i++)
     {
-        if (A[i].value > 1 && A[i].selected == 0)  // won if all 2+ value spots are selected
+        if (grid[i].value > 1 && grid[i].selected == 0)  // won if all 2+ value spots are selected
             return 0;
     }
     return 1; 
-}
-
-// initializes game board
-void matrixInit(struct Spot A[],int b)
-{
-    // initializes every spot to a value of 1
-    for (int i=0;i<SIZE;i++)
-    {
-        A[i].value = 1;
-    }
-    int bombs = 6+b; // # of total bombs
-    int points = 5; // # of extra points to be allocated
-    int temp = 0;
-    srand(time(NULL)); // seeds random
-    // initializes bomb locations
-    while (bombs > 0)
-    {
-        temp = rand() % SIZE; // random number between 0 and 24
-        if (!ifBomb(A,temp)) // if location isn't already bomb
-        {
-            A[temp].bomb = 1; // sets if bomb to 1
-            A[temp].value = 0; // sets point value to 0
-            bombs--;
-        }
-    }
-    // allocates extra points to board randomly (seeded with time)
-    while (points > 0)
-    {
-        temp = rand() % SIZE;
-        if (!ifBomb(A,temp))
-        {
-            A[temp].value++;
-            points--;
-        }
-    }
 }
 
 int main(int argc, char *argv[])
@@ -166,28 +177,28 @@ int main(int argc, char *argv[])
     int loss = 0; // boolean loss
     int win; // boolean win
     int level = 0; // level - 1
-    char coord[3];
-    int loc;
+    char coord[3]; // array of user inputted coordinates
+    int loc; // location in array
     while (level <= 2 && !loss)
     {
         win = 0;
-        countArrayInit(&rowBombArr,&rowValArr,&colBombArr,&colValArr,level);
-        matrixInit(board,level);
-        countBomb(board,rowBombArr,colBombArr);
-        countPoints(board,rowValArr,colValArr);
-        printBoard(board,rowBombArr,colBombArr,rowValArr,colValArr,level);
+        countArrayInit(&rowBombArr, &rowValArr, &colBombArr, &colValArr, level);
+        matrixInit(board, level);
+        countBomb(board, rowBombArr, colBombArr);
+        countPoints(board, rowValArr, colValArr);
+        printBoard(board, rowBombArr, colBombArr, rowValArr, colValArr, level);
         while (!loss && !win)
         {
             // receives user input for spot selection
             printf("Enter coordinate (xy): ");
             scanf("%s",&coord);
-            loc = (coord[1] - '0') * 5 + (int)coord[0] - 64;
-            if (loc >= 1 && loc <= 25)
+            loc = (coord[1] - '0') * 5 + (int)coord[0] - 64; // converts coordinate into array index
+            if (loc >= 1 && loc <= 25) // check for valid input
             {
                 board[loc-1].selected = 1;
-                printBoard(board,rowBombArr,colBombArr,rowValArr,colValArr,level); // updates board
+                printBoard(board, rowBombArr, colBombArr, rowValArr, colValArr, level); // updates board
                 // checks for loss and win
-                loss = checkLoss(board,loc-1);
+                loss = checkLoss(board, loc-1);
                 win = checkWin(board);
             }
             else
@@ -197,12 +208,12 @@ int main(int argc, char *argv[])
         {
             level++; // increment the level
             memset(board,0,SIZE*sizeof(struct Spot)); // clear the board
-            if (level == 3)
+            if (level == 3) // win after 3 levels
                 printf("You win!\n");
         }
         if (loss)
             printf("You lose!\n");
-        countArrayFree(rowBombArr,rowValArr,colBombArr,colValArr);
+        countArrayFree(rowBombArr, rowValArr, colBombArr, colValArr);
     }
     return EXIT_SUCCESS;
 }

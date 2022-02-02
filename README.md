@@ -4,11 +4,11 @@ Minefield is a game based on a minigame called Voltorb Flip from Pokemon HeartGo
 
 ## Technologies
 ### OS
-Windows (untested on Unix and Linux)
+Linux (untested on Unix and Windows)
 ### Language
 C
 ### Compiler
-MinGW (GCC)
+GCC
 
 ## Known Issues
 Overflow error for column points array when user input has valid coordinate followed by other characters.
